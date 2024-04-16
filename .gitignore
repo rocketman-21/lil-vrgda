@@ -1,0 +1,42 @@
+# Compiler files
+cache/
+out/
+abis/
+
+#turbo
+.turbo
+
+# Ignores development broadcast logs
+!/broadcast
+/broadcast/*/31337/
+/broadcast/**/dry-run/
+node_modules/
+
+# Docs
+docs/
+
+# Dotenv file
+.env
+
+broadcast
+
+.vscode/settings.json
+
+bin
+
+# coverage info
+lcov.info
+
+.deps
+
+packages/*/src/artifacts/**/*.json
+
+
+package/wagmiGenerated.ts
+package/chainConfigs.ts
+
+**/*wagmiGenerated.ts
+
+# package files
+dist/
+soljson-v0.8.22+commit.4fc1097e.js

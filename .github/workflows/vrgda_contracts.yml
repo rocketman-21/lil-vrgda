@@ -1,0 +1,40 @@
+name: "VRGDA Contracts"
+
+on:
+  workflow_call:
+
+jobs:
+  build:
+    uses: ./.github/workflows/build.yml
+    with:
+      package_folder: packages/contracts
+
+  test:
+    uses: ./.github/workflows/test.yml
+    with:
+      package_folder: packages/contracts
+
+  storage_test:
+    needs: build
+    uses: ./.github/workflows/storage.yml
+    with:
+      package_folder: packages/contracts
+
+  contract_sizes:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    uses: ./.github/workflows/contract_sizes.yml
+    with:
+      package_folder: packages/contracts
+
+  slither:
+    needs: build
+    uses: ./.github/workflows/slither.yml
+    with:
+      package_folder: packages/contracts
+
+  coverage:
+    uses: ./.github/workflows/coverage.yml
+    with:
+      package: "contracts"
+      files_to_ignore: '"*interfaces*" "*proxy*"'
