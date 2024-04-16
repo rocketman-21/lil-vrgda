@@ -5,4 +5,9 @@ import { Test } from "forge-std/Test.sol";
 
 contract VrgdaTest is Test {
     function setUp() public virtual {}
+
+    function test() public {
+        // This is a test
+        assertTrue(true);
+    }
 }
