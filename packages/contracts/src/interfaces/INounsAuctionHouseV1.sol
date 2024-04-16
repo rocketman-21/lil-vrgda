@@ -52,7 +52,7 @@ interface INounsAuctionHouse {
     function settleCurrentAndCreateNewAuction() external;
 
     function createBid(uint256 nounId) external payable;
-    
+
     function pause() external;
 
     function unpause() external;

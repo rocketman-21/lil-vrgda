@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.0;
 
-import { wadExp, wadLn, wadMul, unsafeWadMul, toWadUnsafe } from 'solmate/src/utils/SignedWadMath.sol';
+import { wadExp, wadLn, wadMul, unsafeWadMul, toWadUnsafe } from "solmate/src/utils/SignedWadMath.sol";
 
 /// @title Variable Rate Gradual Dutch Auction
 /// @author transmissions11 <t11s@paradigm.xyz>
@@ -29,7 +29,7 @@ abstract contract VRGDA {
         decayConstant = wadLn(1e18 - _priceDecayPercent);
 
         // The decay constant must be negative for VRGDAs to work.
-        require(decayConstant < 0, 'NON_NEGATIVE_DECAY_CONSTANT');
+        require(decayConstant < 0, "NON_NEGATIVE_DECAY_CONSTANT");
     }
 
     /*//////////////////////////////////////////////////////////////

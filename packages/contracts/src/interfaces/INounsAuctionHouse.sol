@@ -54,7 +54,7 @@ interface INounsAuctionHouse {
     function createBid(uint256 nounId) external payable;
 
     function createBidWithComment(uint256 nounId, string calldata comment) external payable;
-    
+
     function pause() external;
 
     function unpause() external;

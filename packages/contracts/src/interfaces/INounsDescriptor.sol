@@ -17,8 +17,8 @@
 
 pragma solidity ^0.8.6;
 
-import { INounsSeeder } from './INounsSeeder.sol';
-import { INounsDescriptorMinimal } from './INounsDescriptorMinimal.sol';
+import { INounsSeeder } from "./INounsSeeder.sol";
+import { INounsDescriptorMinimal } from "./INounsDescriptorMinimal.sol";
 
 interface INounsDescriptor is INounsDescriptorMinimal {
     event PartsLocked();
