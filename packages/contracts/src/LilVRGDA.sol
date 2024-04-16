@@ -38,48 +38,114 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // equal to total number sold + 1
     uint256 public nextNounId;
 
-    // Time of sale of the first lilNoun, used to calculate VRGDA price
-    uint256 public immutable startTime;
-
     // How often the VRGDA price will update to reflect VRGDA pricing rules
     uint256 public immutable updateInterval = 15 minutes;
+
+    // Time of sale of the first lilNoun, used to calculate VRGDA price
+    uint256 public startTime;
 
     // The minimum price accepted in an auction
     uint256 public reservePrice;
 
     // The WETH contract address
-    address public immutable wethAddress;
+    address public wethAddress;
 
     // The Nouns ERC721 token contract
-    INounsToken public immutable nounsToken;
+    INounsToken public nounsToken;
 
     // The Nouns Seeder contract
-    INounsSeeder public immutable nounsSeeder;
+    INounsSeeder public nounsSeeder;
 
     // The Nouns Descriptor contract
-    INounsDescriptor public immutable nounsDescriptor;
+    INounsDescriptor public nounsDescriptor;
 
+    // The manager who can initialize the contract
+    address public immutable manager;
+
+    ///                                            ///
+    ///                   ERRORS                   ///
+    ///                                            ///
+
+    // Reverts when the caller is not the manager
+    error NOT_MANAGER();
+
+    // Reverts when the address is zero
+    error ADDRESS_ZERO();
+
+    ///                                            ///
+    ///                CONSTRUCTOR                 ///
+    ///                                            ///
+
+    /**
+     * @notice Creates a new LilVRGDA contract instance.
+     * @dev Initializes the LinearVRGDA with pricing parameters and sets the manager.
+     * @param _targetPrice The target price for a token if sold on pace, scaled by 1e18.
+     * @param _priceDecayPercent The percent price decays per unit of time with no sales, scaled by 1e18.
+     * @param _perTimeUnit The number of tokens to target selling in 1 full unit of time, scaled by 1e18.
+     * @param _manager The address of the manager who can initialize the contract.
+     */
     constructor(
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit,
-        uint256 _nextNounId,
-        uint256 _startTime,
+        address _manager
+    ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
+        if (_manager == address(0)) revert ADDRESS_ZERO();
+
+        manager = _manager;
+    }
+
+    /**
+     * @notice Initializes a token's metadata descriptor
+     * @param _nounsTokenAddress The address of the token contract
+     * @param _nounsSeederAddress The address of the seeder contract
+     * @param _nounsDescriptorAddress The address of the descriptor contract
+     * @param _wethAddress The address of the WETH contract
+     * @param _reservePrice The reserve price for the auction
+     * @param _nextNounId The next noun ID to be minted
+     */
+    function initialize(
         address _nounsTokenAddress,
         address _nounsSeederAddress,
         address _nounsDescriptorAddress,
         address _wethAddress,
-        uint256 _reservePrice
-    ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
+        uint256 _reservePrice,
+        uint256 _nextNounId
+    ) external initializer {
+        if (msg.sender != manager) revert NOT_MANAGER();
+        if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
+        if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
+        if (_nounsDescriptorAddress == address(0)) revert ADDRESS_ZERO();
+        if (_wethAddress == address(0)) revert ADDRESS_ZERO();
+
+        // Setup ownable
+        __Ownable_init(); // sets owner to msg.sender
+        // Setup reentrancy guard
+        __ReentrancyGuard_init();
+        // Setup pausable
+        __Pausable_init();
+
         nounsToken = INounsToken(_nounsTokenAddress);
         nounsSeeder = INounsSeeder(_nounsSeederAddress);
         nounsDescriptor = INounsDescriptor(_nounsDescriptorAddress);
+
         nextNounId = _nextNounId;
-        startTime = _startTime;
+
+        // If we are upgrading, don't reset the start time
+        if (startTime == 0) startTime = block.timestamp;
+
         wethAddress = _wethAddress;
         reservePrice = _reservePrice;
     }
 
+    /**
+     * @notice Allows a user to buy a Noun immediately at the current VRGDA price if conditions are met.
+     * @param expectedNounId The expected ID of the Noun to be bought.
+     * @param expectedParentBlockhash The expected parent blockhash to validate the transaction.
+     * @dev This function is payable and requires the sent value to be at least the reserve price and the current VRGDA price.
+     * It checks the expected parent blockhash and Noun ID for validity, mints the Noun, transfers it, handles refunds, and sends funds to the DAO.
+     * It reverts if the conditions are not met or if the transaction is not valid according to VRGDA rules.
+     */
     function buyNow(
         uint256 expectedNounId,
         bytes32 expectedParentBlockhash
@@ -118,7 +184,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     }
 
     /**
-     * @notice Set the auction reserve price.
+     * @notice Set the VRGDA reserve price.
      * @dev Only callable by the owner.
      */
     function setReservePrice(uint256 _reservePrice) external onlyOwner {
@@ -130,7 +196,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     /**
      * @notice Pause the LilVRGDA auction.
      * @dev This function can only be called by the owner when the
-     * contract is unpaused. No new auctions can be started when paused.
+     * contract is unpaused. No new Lils can be sold when paused.
      */
     function pause() external override onlyOwner {
         _pause();
@@ -145,6 +211,15 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         _unpause();
     }
 
+    /**
+     * @notice Fetches the next noun's details including ID, seed, SVG, price, and blockhash.
+     * @dev Generates the seed and SVG for the next noun, calculates its price based on VRGDA rules, and fetches the blockhash.
+     * @return nounId The ID of the next noun.
+     * @return seed The seed data for generating the next noun's SVG.
+     * @return svg The SVG image of the next noun.
+     * @return price The price of the next noun according to VRGDA rules.
+     * @return hash The blockhash associated with the next noun.
+     */
     function fetchNextNoun()
         external
         view
@@ -167,19 +242,24 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         return (_nextNounIdForCaller, seed, svg, price, hash);
     }
 
-    // TODO: I can keep this function private and still test by having my
-    // tests inherit from this contract
+    /**
+     * @notice Calculates the current price of a VRGDA token based on the time elapsed and the next noun ID.
+     * @dev This function computes the absolute time since the start of the auction, adjusts it to the nearest day, and then calculates the price using the VRGDA formula.
+     * @return The current price of the next VRGDA token.
+     */
     function getCurrentVRGDAPrice() public view returns (uint256) {
-        uint256 absoluteTimeSinceStart = block.timestamp - startTime;
+        uint256 absoluteTimeSinceStart = block.timestamp - startTime; // Calculate the absolute time since the auction started.
         return
             getVRGDAPrice(
-                toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)),
-                nextNounId
+                toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)), // Adjust time to the nearest day.
+                nextNounId // The number sold
             );
     }
 
     /**
-     * @dev handles edge case in nouns token contract
+     * @notice Fetches the next noun ID that will be minted to the caller.
+     * @dev Handles edge cases in the nouns token contract for founders rewards.
+     * @return nounId The ID of the next noun.
      */
     function nextNounIdForCaller() public view returns (uint256) {
         // Calculate nounId that would be minted to the caller
@@ -212,8 +292,10 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         return success;
     }
 
-    /// @notice Ensures the caller is authorized to upgrade the contract to a new implementation
-    /// @dev This function is called in UUPS `upgradeTo` & `upgradeToAndCall`
-    /// @param _impl The address of the new implementation
+    /**
+     * @notice Ensures the caller is authorized to upgrade the contract to a new implementation.
+     * @dev This function is invoked in the UUPS `upgradeTo` and `upgradeToAndCall` methods.
+     * @param _impl Address of the new contract implementation.
+     */
     function _authorizeUpgrade(address _impl) internal view override onlyOwner {}
 }
