@@ -165,6 +165,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         uint256 mintedNounId = nounsToken.mint();
         assert(mintedNounId == _nextNounIdForCaller);
 
+        // Increment the next noun ID.
+        nextNounId = mintedNounId + 1;
+
         // Sends token to caller.
         nounsToken.transferFrom(address(this), msg.sender, mintedNounId);
 
@@ -179,7 +182,6 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
             }
         }
 
-        nextNounId = mintedNounId + 1;
         emit AuctionSettled(mintedNounId, msg.sender, price);
     }
 
@@ -275,11 +277,32 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
 
     /**
      * @notice Transfer ETH. If the ETH transfer fails, wrap the ETH and try send it as wethAddress.
+     * @param _to The address to transfer ETH to.
+     * @param _amount The amount of ETH to transfer.
      */
-    function _safeTransferETHWithFallback(address to, uint256 amount) internal {
-        if (!_safeTransferETH(to, amount)) {
-            IWETH(wethAddress).deposit{ value: amount }();
-            IERC20(wethAddress).transfer(to, amount);
+    function _safeTransferETHWithFallback(address _to, uint256 _amount) private {
+        // Ensure the contract has enough ETH to transfer
+        if (address(this).balance < _amount) revert("Insufficient balance");
+
+        // Used to store if the transfer succeeded
+        bool success;
+
+        assembly {
+            // Transfer ETH to the recipient
+            // Limit the call to 30,000 gas
+            success := call(30000, _to, _amount, 0, 0, 0, 0)
+        }
+
+        // If the transfer failed:
+        if (!success) {
+            // Wrap as WETH
+            IWETH(wethAddress).deposit{ value: _amount }();
+
+            // Transfer WETH instead
+            bool wethSuccess = IWETH(wethAddress).transfer(_to, _amount);
+
+            // Ensure successful transfer
+            if (!wethSuccess) revert("WETH transfer failed");
         }
     }
 
