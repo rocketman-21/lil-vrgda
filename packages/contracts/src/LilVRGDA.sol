@@ -39,7 +39,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     uint256 public nextNounId;
 
     // How often the VRGDA price will update to reflect VRGDA pricing rules
-    uint256 public immutable updateInterval = 15 minutes;
+    uint256 public updateInterval = 15 minutes;
 
     // Time of sale of the first lilNoun, used to calculate VRGDA price
     uint256 public startTime;
@@ -196,6 +196,15 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     }
 
     /**
+     * @notice Set the auction update interval.
+     * @dev Only callable by the owner.
+     */
+    function setUpdateInterval(uint256 _updateInterval) external onlyOwner {
+        updateInterval = _updateInterval;
+        emit AuctionUpdateIntervalUpdated(_updateInterval);
+    }
+
+    /**
      * @notice Pause the LilVRGDA auction.
      * @dev This function can only be called by the owner when the
      * contract is unpaused. No new Lils can be sold when paused.
@@ -215,6 +224,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
 
     /**
      * @notice Fetches the next noun's details including ID, seed, SVG, price, and blockhash.
+     * @param blockNumber The block number to use for generating the seed.
      * @dev Generates the seed and SVG for the next noun, calculates its price based on VRGDA rules, and fetches the blockhash.
      * @return nounId The ID of the next noun.
      * @return seed The seed data for generating the next noun's SVG.
@@ -222,15 +232,17 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @return price The price of the next noun according to VRGDA rules.
      * @return hash The blockhash associated with the next noun.
      */
-    function fetchNextNoun()
-        external
+    function fetchNoun(
+        uint256 blockNumber
+    )
+        public
         view
         override
         returns (uint256 nounId, INounsSeeder.Seed memory seed, string memory svg, uint256 price, bytes32 hash)
     {
         uint256 _nextNounIdForCaller = nextNounIdForCaller();
         // Generate the seed for the next noun.
-        seed = nounsSeeder.generateSeed(_nextNounIdForCaller, nounsDescriptor);
+        seed = nounsSeeder.generateSeedWithBlock(_nextNounIdForCaller, nounsDescriptor, blockNumber);
 
         // Generate the SVG from seed using the descriptor.
         svg = nounsDescriptor.generateSVGImage(seed);
@@ -242,6 +254,19 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         hash = blockhash(block.number - 1);
 
         return (_nextNounIdForCaller, seed, svg, price, hash);
+    }
+
+    /**
+     * @notice Fetches the next noun's details including ID, seed, SVG, price, and blockhash.
+     * @dev Same as fetchNoun except for the next up Noun
+     */
+    function fetchNextNoun()
+        external
+        view
+        override
+        returns (uint256 nounId, INounsSeeder.Seed memory seed, string memory svg, uint256 price, bytes32 hash)
+    {
+        return fetchNoun(block.number - 1);
     }
 
     /**

@@ -26,7 +26,16 @@ interface ILilVRGDA {
     // keep this the same for backwards compatibility
     event AuctionReservePriceUpdated(uint256 reservePrice);
 
+    event AuctionUpdateIntervalUpdated(uint256 interval);
+
     function buyNow(uint256 nounId, bytes32 expectedParentBlockhash) external payable;
+
+    function fetchNoun(
+        uint256 blockNumber
+    )
+        external
+        view
+        returns (uint nounId, INounsSeeder.Seed memory seed, string memory svg, uint256 price, bytes32 hash);
 
     function fetchNextNoun()
         external

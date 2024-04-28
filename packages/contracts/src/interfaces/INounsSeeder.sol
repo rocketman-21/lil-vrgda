@@ -29,4 +29,10 @@ interface INounsSeeder {
     }
 
     function generateSeed(uint256 nounId, INounsDescriptorMinimal descriptor) external view returns (Seed memory);
+
+    function generateSeedWithBlock(
+        uint256 nounId,
+        INounsDescriptorMinimal descriptor,
+        uint256 blockNumber
+    ) external view returns (Seed memory);
 }
