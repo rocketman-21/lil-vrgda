@@ -47,6 +47,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // The minimum price accepted in an auction
     uint256 public reservePrice;
 
+    // the last block at which the last Lil Noun was sold
+    uint256 public lastTokenBlock;
+
     // The WETH contract address
     address public wethAddress;
 
@@ -140,21 +143,25 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
 
     /**
      * @notice Allows a user to buy a Noun immediately at the current VRGDA price if conditions are met.
-     * @param expectedNounId The expected ID of the Noun to be bought.
-     * @param expectedParentBlockhash The expected parent blockhash to validate the transaction.
+     * @param expectedBlockNumber The block number to specify the traits of the token
      * @dev This function is payable and requires the sent value to be at least the reserve price and the current VRGDA price.
      * It checks the expected parent blockhash and Noun ID for validity, mints the Noun, transfers it, handles refunds, and sends funds to the DAO.
      * It reverts if the conditions are not met or if the transaction is not valid according to VRGDA rules.
      */
-    function buyNow(
-        uint256 expectedNounId,
-        bytes32 expectedParentBlockhash
-    ) external payable override whenNotPaused nonReentrant {
-        // Only settle if desired Noun would be minted
-        bytes32 parentBlockhash = blockhash(block.number - 1);
-        require(expectedParentBlockhash == parentBlockhash, "Invalid or expired blockhash");
+    function buyNow(uint256 expectedBlockNumber) external payable override whenNotPaused nonReentrant {
+        // mint tokens from nouns from the last n blocks
+        require(
+            expectedBlockNumber <= block.number - 1 ||
+                expectedBlockNumber > lastTokenBlock ||
+                expectedBlockNumber >= block.number - 4,
+            "Invalid block number"
+        );
+
         uint256 _nextNounIdForCaller = nextNounIdForCaller();
-        require(expectedNounId == _nextNounIdForCaller, "Invalid or expired nounId");
+
+        // make it impossible to get a token with traits of any previous token (pool is emptied when a noun is bought, prevents buying duplicates)
+        lastTokenBlock = expectedBlockNumber;
+
         require(msg.value >= reservePrice, "Below reservePrice");
 
         // Validate the purchase request against the VRGDA rules.

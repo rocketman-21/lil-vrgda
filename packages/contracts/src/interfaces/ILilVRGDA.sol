@@ -28,7 +28,7 @@ interface ILilVRGDA {
 
     event AuctionUpdateIntervalUpdated(uint256 interval);
 
-    function buyNow(uint256 nounId, bytes32 expectedParentBlockhash) external payable;
+    function buyNow(uint256 expectedBlockNumber) external payable;
 
     function fetchNoun(
         uint256 blockNumber
