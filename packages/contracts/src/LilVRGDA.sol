@@ -47,6 +47,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // The minimum price accepted in an auction
     uint256 public reservePrice;
 
+    // The size of the pool of tokens you can choose to buy from
+    uint256 public poolSize;
+
     // the last block at which the last Lil Noun was sold
     uint256 public lastTokenBlock;
 
@@ -106,6 +109,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @param _wethAddress The address of the WETH contract
      * @param _reservePrice The reserve price for the auction
      * @param _nextNounId The next noun ID to be minted
+     * @param _poolSize The size of the pool of tokens you can choose to buy from
      */
     function initialize(
         address _nounsTokenAddress,
@@ -113,7 +117,8 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         address _nounsDescriptorAddress,
         address _wethAddress,
         uint256 _reservePrice,
-        uint256 _nextNounId
+        uint256 _nextNounId,
+        uint256 _poolSize
     ) external initializer {
         if (msg.sender != manager) revert NOT_MANAGER();
         if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
@@ -139,21 +144,21 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
 
         wethAddress = _wethAddress;
         reservePrice = _reservePrice;
+        poolSize = _poolSize;
     }
 
     /**
      * @notice Allows a user to buy a Noun immediately at the current VRGDA price if conditions are met.
      * @param expectedBlockNumber The block number to specify the traits of the token
      * @dev This function is payable and requires the sent value to be at least the reserve price and the current VRGDA price.
-     * It checks the expected parent blockhash and Noun ID for validity, mints the Noun, transfers it, handles refunds, and sends funds to the DAO.
-     * It reverts if the conditions are not met or if the transaction is not valid according to VRGDA rules.
+     * It checks if the block number is valid, mints the Noun, transfers it, handles refunds, and sends funds to the DAO.
      */
     function buyNow(uint256 expectedBlockNumber) external payable override whenNotPaused nonReentrant {
         // mint tokens from nouns from the last n blocks
         require(
             expectedBlockNumber <= block.number - 1 ||
                 expectedBlockNumber > lastTokenBlock ||
-                expectedBlockNumber >= block.number - 4,
+                expectedBlockNumber >= block.number - poolSize,
             "Invalid block number"
         );
 
@@ -209,6 +214,16 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     function setUpdateInterval(uint256 _updateInterval) external onlyOwner {
         updateInterval = _updateInterval;
         emit AuctionUpdateIntervalUpdated(_updateInterval);
+    }
+
+    /**
+     * @notice Sets the pool size.
+     * @dev Only callable by the owner.
+     */
+    function setPoolSize(uint256 _poolSize) external onlyOwner {
+        poolSize = _poolSize;
+
+        emit PoolSizeUpdated(_poolSize);
     }
 
     /**

@@ -28,6 +28,8 @@ interface ILilVRGDA {
 
     event AuctionUpdateIntervalUpdated(uint256 interval);
 
+    event PoolSizeUpdated(uint256 poolSize);
+
     function buyNow(uint256 expectedBlockNumber) external payable;
 
     function fetchNoun(
