@@ -276,11 +276,13 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      */
     function getCurrentVRGDAPrice() public view returns (uint256) {
         uint256 absoluteTimeSinceStart = block.timestamp - startTime; // Calculate the absolute time since the auction started.
-        return
-            getVRGDAPrice(
-                toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)), // Adjust time to the nearest day.
-                nextNounId // The number sold
-            );
+        uint256 price = getVRGDAPrice(
+            toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)), // Adjust time to the nearest day.
+            nextNounId // The number sold
+        );
+
+        // return max of price and reservePrice
+        return price > reservePrice ? price : reservePrice;
     }
 
     /**
