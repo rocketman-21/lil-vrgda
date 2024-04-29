@@ -38,9 +38,12 @@
 | _owner          | address                   | 151  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
 | __gap           | uint256[49]               | 152  | 0      | 1568  | src/LilVRGDA.sol:LilVRGDA |
 | nextNounId      | uint256                   | 201  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
-| startTime       | uint256                   | 202  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
-| reservePrice    | uint256                   | 203  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
-| wethAddress     | address                   | 204  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
-| nounsToken      | contract INounsToken      | 205  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
-| nounsSeeder     | contract INounsSeeder     | 206  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
-| nounsDescriptor | contract INounsDescriptor | 207  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
+| updateInterval  | uint256                   | 202  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
+| startTime       | uint256                   | 203  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
+| reservePrice    | uint256                   | 204  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
+| poolSize        | uint256                   | 205  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
+| lastTokenBlock  | uint256                   | 206  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
+| wethAddress     | address                   | 207  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
+| nounsToken      | contract INounsToken      | 208  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
+| nounsSeeder     | contract INounsSeeder     | 209  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
+| nounsDescriptor | contract INounsDescriptor | 210  | 0      | 20    | src/LilVRGDA.sol:LilVRGDA |
