@@ -343,15 +343,6 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     }
 
     /**
-     * @notice Transfer ETH and return the success status.
-     * @dev This function only forwards 30,000 gas to the callee.
-     */
-    function _safeTransferETH(address to, uint256 value) internal returns (bool) {
-        (bool success, ) = to.call{ value: value, gas: 30_000 }(new bytes(0));
-        return success;
-    }
-
-    /**
      * @notice Ensures the caller is authorized to upgrade the contract to a new implementation.
      * @dev This function is invoked in the UUPS `upgradeTo` and `upgradeToAndCall` methods.
      * @param _impl Address of the new contract implementation.
