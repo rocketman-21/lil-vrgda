@@ -65,15 +65,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // The Nouns Descriptor contract
     INounsDescriptor public nounsDescriptor;
 
-    // The manager who can initialize the contract
-    address public immutable manager;
-
     ///                                            ///
     ///                   ERRORS                   ///
     ///                                            ///
-
-    // Reverts when the caller is not the manager
-    error NOT_MANAGER();
 
     // Reverts when the address is zero
     error ADDRESS_ZERO();
@@ -84,22 +78,16 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
 
     /**
      * @notice Creates a new LilVRGDA contract instance.
-     * @dev Initializes the LinearVRGDA with pricing parameters and sets the manager.
+     * @dev Initializes the LinearVRGDA with pricing parameters.
      * @param _targetPrice The target price for a token if sold on pace, scaled by 1e18.
      * @param _priceDecayPercent The percent price decays per unit of time with no sales, scaled by 1e18.
      * @param _perTimeUnit The number of tokens to target selling in 1 full unit of time, scaled by 1e18.
-     * @param _manager The address of the manager who can initialize the contract.
      */
     constructor(
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit,
-        address _manager
-    ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
-        if (_manager == address(0)) revert ADDRESS_ZERO();
-
-        manager = _manager;
-    }
+    ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {}
 
     /**
      * @notice Initializes a token's metadata descriptor
@@ -120,7 +108,6 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         uint256 _nextNounId,
         uint256 _poolSize
     ) external initializer {
-        if (msg.sender != manager) revert NOT_MANAGER();
         if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
         if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
         if (_nounsDescriptorAddress == address(0)) revert ADDRESS_ZERO();
@@ -175,7 +162,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
 
         // Call settleAuction on the nouns contract.
         uint256 mintedNounId = nounsToken.mint();
-        assert(mintedNounId == _nextNounIdForCaller);
+        require(mintedNounId == _nextNounIdForCaller, "Incorrect minted noun id");
 
         // Increment the next noun ID.
         nextNounId = mintedNounId + 1;
