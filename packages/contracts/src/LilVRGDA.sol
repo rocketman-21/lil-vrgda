@@ -86,7 +86,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     constructor(
         int256 _targetPrice,
         int256 _priceDecayPercent,
-        int256 _perTimeUnit,
+        int256 _perTimeUnit
     ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {}
 
     /**
