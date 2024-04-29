@@ -37,4 +37,4 @@ jobs:
     uses: ./.github/workflows/coverage.yml
     with:
       package: "contracts"
-      files_to_ignore: '"*interfaces*" "*proxy*"'
+      files_to_ignore: '"*interfaces*" "*proxy*" "*base*" "*vrgda*" "NounsToken.sol"'

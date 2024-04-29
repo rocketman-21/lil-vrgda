@@ -22,8 +22,8 @@
     "wagmi": "FOUNDRY_PROFILE=dev forge build && wagmi generate",
     "write-gas-report": "forge test --gas-report > ../../gas-reports/contracts.ansi",
     "clean": "forge cache clean && if [ -d out ]; then forge clean; fi",
-    "storage-inspect:check": "../../script/storage-check.sh check ERC1967Proxy ERC1967Upgrade UUPS",
-    "storage-inspect:generate": "../../script/storage-check.sh generate ERC1967Proxy ERC1967Upgrade UUPS"
+    "storage-inspect:check": "../../script/storage-check.sh check ERC1967Proxy ERC1967Upgrade UUPS LilVRGDA",
+    "storage-inspect:generate": "../../script/storage-check.sh generate ERC1967Proxy ERC1967Upgrade UUPS LilVRGDA"
   },
   "files": [
     "dist/",
@@ -40,8 +40,8 @@
     "tsx": "^4.6.2"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "5.0.0",
-    "@openzeppelin/contracts-upgradeable": "5.0.0",
+    "@openzeppelin/contracts": "^4.1.0",
+    "@openzeppelin/contracts-upgradeable": "^4.1.0",
     "ds-test": "https://github.com/dapphub/ds-test#cd98eff28324bfac652e63a239a60632a761790b",
     "forge-std": "https://github.com/foundry-rs/forge-std#87a2a0afc5fafd6297538a45a52ac19e71a84562",
     "solmate": "^6.1.0"
