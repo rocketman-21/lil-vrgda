@@ -137,7 +137,6 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         wethAddress = _wethAddress;
         reservePrice = _reservePrice;
         poolSize = _poolSize;
-        // take into account founder rewards
         nounsSoldAtAuction = _nounsSoldAtAuction;
     }
 
