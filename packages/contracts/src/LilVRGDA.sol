@@ -50,8 +50,8 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // The size of the pool of tokens you can choose to buy from
     uint256 public poolSize;
 
-    // the last block at which the last Lil Noun was sold
-    uint256 public lastTokenBlock;
+    // Mapping of blockNumbers that have been used to mint tokens
+    mapping(uint256 blockNumber => bool used) public usedBlockNumbers;
 
     // The WETH contract address
     address public immutable wethAddress;
@@ -158,7 +158,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         // mint tokens from nouns from the last n blocks
         require(
             expectedBlockNumber <= block.number - 1 &&
-                expectedBlockNumber > lastTokenBlock &&
+                usedBlockNumbers[expectedBlockNumber] == false &&
                 expectedBlockNumber >= block.number - poolSize,
             "Invalid block number"
         );
@@ -175,7 +175,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         }
 
         // make it impossible to get a token with traits of any previous token (pool is emptied when a noun is bought, prevents buying duplicates)
-        lastTokenBlock = expectedBlockNumber;
+        usedBlockNumbers[expectedBlockNumber] = true;
 
         // Validate the purchase request against the VRGDA rules.
         uint256 price = getCurrentVRGDAPrice();
