@@ -175,8 +175,6 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         // make it impossible to get a token with traits of any previous token (pool is emptied when a noun is bought, prevents buying duplicates)
         lastTokenBlock = expectedBlockNumber;
 
-        require(msg.value >= reservePrice, "Below reservePrice");
-
         // Validate the purchase request against the VRGDA rules.
         uint256 price = getCurrentVRGDAPrice();
         require(msg.value >= price, "Insufficient funds");
