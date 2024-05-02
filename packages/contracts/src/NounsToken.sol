@@ -289,7 +289,7 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * Necessary to ensure that the seed for Nouns minted in past blocks from the VRGDA pool are correct.
      */
     function _mintTo(address to, uint256 nounId, uint256 blockNumber) internal returns (uint256) {
-        INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeedWithBlock(nounId, descriptor, blockNumber);
+        INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeed(nounId, descriptor, blockNumber);
 
         _mint(owner(), to, nounId);
         emit NounCreated(nounId, seed);
