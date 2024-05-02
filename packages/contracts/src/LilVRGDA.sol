@@ -65,6 +65,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // The Nouns Descriptor contract
     INounsDescriptor public nounsDescriptor;
 
+    // Nouns sold so far
+    uint256 public nounsSoldAtAuction;
+
     ///                                            ///
     ///                   ERRORS                   ///
     ///                                            ///
@@ -98,6 +101,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @param _reservePrice The reserve price for the auction
      * @param _nextNounId The next noun ID to be minted
      * @param _poolSize The size of the pool of tokens you can choose to buy from
+     * @param _nounsSoldAtAuction The number of nouns sold so far.
      */
     function initialize(
         address _nounsTokenAddress,
@@ -106,7 +110,8 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         address _wethAddress,
         uint256 _reservePrice,
         uint256 _nextNounId,
-        uint256 _poolSize
+        uint256 _poolSize,
+        uint256 _nounsSoldAtAuction
     ) external initializer {
         if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
         if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
@@ -132,6 +137,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         wethAddress = _wethAddress;
         reservePrice = _reservePrice;
         poolSize = _poolSize;
+        nounsSoldAtAuction = _nounsSoldAtAuction;
     }
 
     /**
@@ -287,7 +293,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         uint256 absoluteTimeSinceStart = block.timestamp - startTime; // Calculate the absolute time since the auction started.
         uint256 price = getVRGDAPrice(
             toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)), // Adjust time to the nearest day.
-            nextNounId // The number sold
+            nextNounId - nounsSoldAtAuction // The number sold, not including the nouns sold at auction
         );
 
         // return max of price and reservePrice
