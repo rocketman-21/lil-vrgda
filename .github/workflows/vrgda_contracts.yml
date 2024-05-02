@@ -32,9 +32,3 @@ jobs:
     uses: ./.github/workflows/slither.yml
     with:
       package_folder: packages/contracts
-
-  coverage:
-    uses: ./.github/workflows/coverage.yml
-    with:
-      package: "contracts"
-      files_to_ignore: '"*interfaces*" "*proxy*" "*base*" "*vrgda*" "NounsToken.sol"'
