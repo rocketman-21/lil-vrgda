@@ -272,7 +272,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     {
         uint256 _nextNounIdForCaller = nextNounIdForCaller();
         // Generate the seed for the next noun.
-        seed = nounsSeeder.generateSeedWithBlock(_nextNounIdForCaller, nounsDescriptor, blockNumber);
+        seed = nounsSeeder.generateSeed(_nextNounIdForCaller, nounsDescriptor, blockNumber);
 
         // Generate the SVG from seed using the descriptor.
         svg = nounsDescriptor.generateSVGImage(seed);
