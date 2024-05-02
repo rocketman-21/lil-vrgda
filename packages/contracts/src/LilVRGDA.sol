@@ -68,6 +68,12 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // Nouns sold so far
     uint256 public nounsSoldAtAuction;
 
+    // Nouns minted for the Lil Nounders as rewards so far
+    uint256 public lilNounderRewardNouns;
+
+    // Nouns minted for Nouns DAO as rewards so far
+    uint256 public nounsDAORewardNouns;
+
     ///                                            ///
     ///                   ERRORS                   ///
     ///                                            ///
@@ -155,7 +161,16 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
             "Invalid block number"
         );
 
-        uint256 _nextNounIdForCaller = nextNounIdForCaller();
+        // If going to mint Nouns that are founder rewards, increment the counts
+        uint256 _nextNounIdForCaller = nextNounId;
+        if (_nextNounIdForCaller <= 175300 && _nextNounIdForCaller % 10 == 0) {
+            _nextNounIdForCaller++;
+            lilNounderRewardNouns++;
+        }
+        if (_nextNounIdForCaller <= 175301 && _nextNounIdForCaller % 10 == 1) {
+            _nextNounIdForCaller++;
+            nounsDAORewardNouns++;
+        }
 
         // make it impossible to get a token with traits of any previous token (pool is emptied when a noun is bought, prevents buying duplicates)
         lastTokenBlock = expectedBlockNumber;
@@ -257,7 +272,13 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     {
         uint256 _nextNounIdForCaller = nextNounIdForCaller();
         // Generate the seed for the next noun.
-        seed = nounsSeeder.generateSeedWithBlock(_nextNounIdForCaller, nounsDescriptor, blockNumber);
+        seed = nounsSeeder.generateSeedWithBlock(
+            nextNounId - nounsSoldAtAuction - lilNounderRewardNouns - nounsDAORewardNouns,
+            lilNounderRewardNouns,
+            nounsDAORewardNouns,
+            nounsDescriptor,
+            blockNumber
+        );
 
         // Generate the SVG from seed using the descriptor.
         svg = nounsDescriptor.generateSVGImage(seed);
@@ -292,8 +313,10 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     function getCurrentVRGDAPrice() public view returns (uint256) {
         uint256 absoluteTimeSinceStart = block.timestamp - startTime; // Calculate the absolute time since the auction started.
         uint256 price = getVRGDAPrice(
-            toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)), // Adjust time to the nearest day.
-            nextNounId - nounsSoldAtAuction // The number sold, not including the nouns sold at auction
+            // Adjust time to the nearest day.
+            toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)),
+            // The number sold, not including the nouns sold at auction and reward Nouns.
+            nextNounId - nounsSoldAtAuction - lilNounderRewardNouns - nounsDAORewardNouns
         );
 
         // return max of price and reservePrice
