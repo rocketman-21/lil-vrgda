@@ -105,6 +105,8 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         address _nounsSeederAddress,
         address _nounsDescriptorAddress
     ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
+        wethAddress = _wethAddress;
+
         if (_wethAddress == address(0)) revert ADDRESS_ZERO();
         if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
         if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
@@ -113,8 +115,6 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         nounsToken = INounsToken(_nounsTokenAddress);
         nounsSeeder = INounsSeeder(_nounsSeederAddress);
         nounsDescriptor = INounsDescriptor(_nounsDescriptorAddress);
-
-        wethAddress = _wethAddress;
     }
 
     /**
