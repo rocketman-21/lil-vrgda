@@ -42,7 +42,12 @@ interface INounsToken is IERC721 {
 
     event SeederLocked();
 
-    function mint(uint256 blockNumber) external returns (uint256);
+    function mint(
+        uint256 blockNumber,
+        uint256 vrgdaNounsMinted,
+        uint256 lilNoundersRewardNouns,
+        uint256 nounsDAORewardNouns
+    ) external returns (uint256);
 
     function burn(uint256 tokenId) external;
 

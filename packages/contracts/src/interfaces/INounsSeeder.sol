@@ -29,7 +29,7 @@ interface INounsSeeder {
     }
 
     function generateSeedWithBlock(
-        uint256 nounsMinted,
+        uint256 vrgdaNounsMinted,
         uint256 lilNoundersRewardNouns,
         uint256 nounsDAORewardNouns,
         INounsDescriptorMinimal descriptor,

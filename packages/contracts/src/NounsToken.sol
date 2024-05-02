@@ -165,16 +165,43 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * @dev Adds blockNumber parameter to minting function.
      * Necessary to ensure that the seed for Nouns minted in past blocks from the VRGDA pool are correct.
      */
-    function mint(uint256 blockNumber) public override onlyMinter returns (uint256) {
+    function mint(
+        uint256 blockNumber,
+        uint256 vrgdaNounsMinted,
+        uint256 lilNoundersRewardNouns,
+        uint256 nounsDAORewardNouns
+    ) public override onlyMinter returns (uint256) {
         if (_currentNounId <= 175300 && _currentNounId % 10 == 0) {
-            _mintTo(lilnoundersDAO, _currentNounId++, blockNumber);
+            _mintTo(
+                lilnoundersDAO,
+                _currentNounId++,
+                blockNumber,
+                vrgdaNounsMinted,
+                lilNoundersRewardNouns,
+                nounsDAORewardNouns
+            );
         }
 
         if (_currentNounId <= 175301 && _currentNounId % 10 == 1) {
-            _mintTo(nounsDAO, _currentNounId++, blockNumber);
+            _mintTo(
+                nounsDAO,
+                _currentNounId++,
+                blockNumber,
+                vrgdaNounsMinted,
+                lilNoundersRewardNouns,
+                nounsDAORewardNouns
+            );
         }
 
-        return _mintTo(minter, _currentNounId++, blockNumber);
+        return
+            _mintTo(
+                minter,
+                _currentNounId++,
+                blockNumber,
+                vrgdaNounsMinted,
+                lilNoundersRewardNouns,
+                nounsDAORewardNouns
+            );
     }
 
     /**
@@ -288,8 +315,21 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * @dev Adds blockNumber parameter to minting function.
      * Necessary to ensure that the seed for Nouns minted in past blocks from the VRGDA pool are correct.
      */
-    function _mintTo(address to, uint256 nounId, uint256 blockNumber) internal returns (uint256) {
-        INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeedWithBlock(nounId, descriptor, blockNumber);
+    function _mintTo(
+        address to,
+        uint256 nounId,
+        uint256 blockNumber,
+        uint256 vrgdaNounsMinted,
+        uint256 lilNoundersRewardNouns,
+        uint256 nounsDAORewardNouns
+    ) internal returns (uint256) {
+        INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeedWithBlock(
+            vrgdaNounsMinted,
+            lilNoundersRewardNouns,
+            nounsDAORewardNouns,
+            descriptor,
+            blockNumber
+        );
 
         _mint(owner(), to, nounId);
         emit NounCreated(nounId, seed);
