@@ -54,16 +54,16 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     uint256 public lastTokenBlock;
 
     // The WETH contract address
-    address public wethAddress;
+    address public immutable wethAddress;
 
     // The Nouns ERC721 token contract
-    INounsToken public nounsToken;
+    INounsToken public immutable nounsToken;
 
     // The Nouns Seeder contract
-    INounsSeeder public nounsSeeder;
+    INounsSeeder public immutable nounsSeeder;
 
     // The Nouns Descriptor contract
-    INounsDescriptor public nounsDescriptor;
+    INounsDescriptor public immutable nounsDescriptor;
 
     // Nouns sold so far
     uint256 public nounsSoldAtAuction;
@@ -91,39 +91,46 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @param _targetPrice The target price for a token if sold on pace, scaled by 1e18.
      * @param _priceDecayPercent The percent price decays per unit of time with no sales, scaled by 1e18.
      * @param _perTimeUnit The number of tokens to target selling in 1 full unit of time, scaled by 1e18.
+     * @param _wethAddress The address of the WETH contract
+     * @param _nounsTokenAddress The address of the token contract
+     * @param _nounsSeederAddress The address of the seeder contract
+     * @param _nounsDescriptorAddress The address of the descriptor contract
      */
     constructor(
         int256 _targetPrice,
         int256 _priceDecayPercent,
-        int256 _perTimeUnit
-    ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {}
+        int256 _perTimeUnit,
+        address _wethAddress,
+        address _nounsTokenAddress,
+        address _nounsSeederAddress,
+        address _nounsDescriptorAddress
+    ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
+        if (_wethAddress == address(0)) revert ADDRESS_ZERO();
+        if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
+        if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
+        if (_nounsDescriptorAddress == address(0)) revert ADDRESS_ZERO();
+
+        nounsToken = INounsToken(_nounsTokenAddress);
+        nounsSeeder = INounsSeeder(_nounsSeederAddress);
+        nounsDescriptor = INounsDescriptor(_nounsDescriptorAddress);
+
+        wethAddress = _wethAddress;
+    }
 
     /**
      * @notice Initializes a token's metadata descriptor
-     * @param _nounsTokenAddress The address of the token contract
-     * @param _nounsSeederAddress The address of the seeder contract
-     * @param _nounsDescriptorAddress The address of the descriptor contract
-     * @param _wethAddress The address of the WETH contract
+
      * @param _reservePrice The reserve price for the auction
      * @param _nextNounId The next noun ID to be minted
      * @param _poolSize The size of the pool of tokens you can choose to buy from
      * @param _nounsSoldAtAuction The number of nouns sold so far.
      */
     function initialize(
-        address _nounsTokenAddress,
-        address _nounsSeederAddress,
-        address _nounsDescriptorAddress,
-        address _wethAddress,
         uint256 _reservePrice,
         uint256 _nextNounId,
         uint256 _poolSize,
         uint256 _nounsSoldAtAuction
     ) external initializer {
-        if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
-        if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
-        if (_nounsDescriptorAddress == address(0)) revert ADDRESS_ZERO();
-        if (_wethAddress == address(0)) revert ADDRESS_ZERO();
-
         // Setup ownable
         __Ownable_init(); // sets owner to msg.sender
         // Setup reentrancy guard
@@ -131,16 +138,11 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         // Setup pausable
         __Pausable_init();
 
-        nounsToken = INounsToken(_nounsTokenAddress);
-        nounsSeeder = INounsSeeder(_nounsSeederAddress);
-        nounsDescriptor = INounsDescriptor(_nounsDescriptorAddress);
-
         nextNounId = _nextNounId;
 
         // If we are upgrading, don't reset the start time
         if (startTime == 0) startTime = block.timestamp;
 
-        wethAddress = _wethAddress;
         reservePrice = _reservePrice;
         poolSize = _poolSize;
         nounsSoldAtAuction = _nounsSoldAtAuction;
