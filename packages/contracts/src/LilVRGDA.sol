@@ -279,7 +279,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         price = getCurrentVRGDAPrice();
 
         // Fetch the blockhash associated with this noun.
-        hash = blockhash(block.number - 1);
+        hash = blockhash(blockNumber);
 
         return (_nextNounIdForCaller, seed, svg, price, hash);
     }
