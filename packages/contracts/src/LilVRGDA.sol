@@ -167,7 +167,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         require(msg.value >= price, "Insufficient funds");
 
         // Call settleAuction on the nouns contract.
-        uint256 mintedNounId = nounsToken.mint();
+        uint256 mintedNounId = nounsToken.mint(expectedBlockNumber);
         require(mintedNounId == _nextNounIdForCaller, "Incorrect minted noun id");
 
         // Increment the next noun ID.

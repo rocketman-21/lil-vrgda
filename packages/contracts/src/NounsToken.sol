@@ -161,17 +161,20 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
      * starting at 0, until 17520 lil nounder Nouns have been minted (5 years w/ 24 hour auctions).
      * starting at 0, until 8760 lil nounder Nouns have been minted (5 years w/ 24 hour auctions).
      * @dev Call _mintTo with the to address(es).
+     *
+     * @dev Adds blockNumber parameter to minting function.
+     * Necessary to ensure that the seed for Nouns minted in past blocks from the VRGDA pool are correct.
      */
-    function mint() public override onlyMinter returns (uint256) {
+    function mint(uint256 blockNumber) public override onlyMinter returns (uint256) {
         if (_currentNounId <= 175300 && _currentNounId % 10 == 0) {
-            _mintTo(lilnoundersDAO, _currentNounId++);
+            _mintTo(lilnoundersDAO, _currentNounId++, blockNumber);
         }
 
         if (_currentNounId <= 175301 && _currentNounId % 10 == 1) {
-            _mintTo(nounsDAO, _currentNounId++);
+            _mintTo(nounsDAO, _currentNounId++, blockNumber);
         }
 
-        return _mintTo(minter, _currentNounId++);
+        return _mintTo(minter, _currentNounId++, blockNumber);
     }
 
     /**
@@ -282,9 +285,11 @@ contract NounsToken is INounsToken, Ownable, ERC721Checkpointable {
 
     /**
      * @notice Mint a Noun with `nounId` to the provided `to` address.
+     * @dev Adds blockNumber parameter to minting function.
+     * Necessary to ensure that the seed for Nouns minted in past blocks from the VRGDA pool are correct.
      */
-    function _mintTo(address to, uint256 nounId) internal returns (uint256) {
-        INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeed(nounId, descriptor);
+    function _mintTo(address to, uint256 nounId, uint256 blockNumber) internal returns (uint256) {
+        INounsSeeder.Seed memory seed = seeds[nounId] = seeder.generateSeedWithBlock(nounId, descriptor, blockNumber);
 
         _mint(owner(), to, nounId);
         emit NounCreated(nounId, seed);
