@@ -143,8 +143,8 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     function buyNow(uint256 expectedBlockNumber) external payable override whenNotPaused nonReentrant {
         // mint tokens from nouns from the last n blocks
         require(
-            expectedBlockNumber <= block.number - 1 ||
-                expectedBlockNumber > lastTokenBlock ||
+            expectedBlockNumber <= block.number - 1 &&
+                expectedBlockNumber > lastTokenBlock &&
                 expectedBlockNumber >= block.number - poolSize,
             "Invalid block number"
         );
