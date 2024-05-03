@@ -154,7 +154,10 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @dev This function is payable and requires the sent value to be at least the reserve price and the current VRGDA price.
      * It checks if the block number is valid, mints the Noun, transfers it, handles refunds, and sends funds to the DAO.
      */
-    function buyNow(uint256 expectedBlockNumber) external payable override whenNotPaused nonReentrant {
+    function buyNow(
+        uint256 expectedBlockNumber,
+        uint256 expectedNounId
+    ) external payable override whenNotPaused nonReentrant {
         // mint tokens from nouns from the last n blocks
         require(
             expectedBlockNumber <= block.number - 1 &&
@@ -163,8 +166,12 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
             "Invalid block number"
         );
 
-        // If going to mint Nouns that are founder rewards, increment the counts
         uint256 _nextNounIdForCaller = nextNounId;
+
+        // Enforce minting expected NounId
+        require(expectedNounId == _nextNounIdForCaller, "Invalid or expired nounId");
+
+        // If going to mint Nouns that are founder rewards, increment the counts
         if (_nextNounIdForCaller <= 175300 && _nextNounIdForCaller % 10 == 0) {
             _nextNounIdForCaller++;
             lilNounderRewardNouns++;
