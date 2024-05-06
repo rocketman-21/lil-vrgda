@@ -15,7 +15,7 @@
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
  *********************************/
 
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.22;
 
 import { ILilVRGDA } from "./interfaces/ILilVrgda.sol";
 import { INounsSeeder } from "./interfaces/INounsSeeder.sol";
@@ -62,7 +62,6 @@ contract NounsSeederV2 is INounsSeeder {
     }
 
     function generateSeed(uint256 nounId, INounsDescriptorMinimal descriptor) external view returns (Seed memory) {
-        uint256 blockNumber = lilVRGDA.expectedBlockNumber();
-        return generateSeedForBlock(nounId, descriptor, blockNumber);
+        return generateSeedForBlock(nounId, descriptor, lilVRGDA.getSeederBlockNumber());
     }
 }

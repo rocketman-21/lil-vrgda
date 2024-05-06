@@ -75,7 +75,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     uint256 public nounsDAORewardNouns;
 
     // The expected block number for the next noun
-    uint256 public expectedBlockNumber;
+    uint256 public seederBlockNumber;
 
     ///                                            ///
     ///                   ERRORS                   ///
@@ -154,6 +154,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     /**
      * @notice Allows a user to buy a Noun immediately at the current VRGDA price if conditions are met.
      * @param expectedBlockNumber The block number to specify the traits of the token
+     * @param expectedNounId The expected noun ID to be minted
      * @dev This function is payable and requires the sent value to be at least the reserve price and the current VRGDA price.
      * It checks if the block number is valid, mints the Noun, transfers it, handles refunds, and sends funds to the DAO.
      */
@@ -223,6 +224,14 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         reservePrice = _reservePrice;
 
         emit AuctionReservePriceUpdated(_reservePrice);
+    }
+
+    /**
+     * @notice Get the block number used to seed the next noun.
+     * @return The block number used to seed the next noun.
+     */
+    function getSeederBlockNumber() external view returns (uint256) {
+        return seederBlockNumber;
     }
 
     /**

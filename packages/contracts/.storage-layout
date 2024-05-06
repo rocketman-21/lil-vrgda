@@ -46,3 +46,4 @@
 | nounsSoldAtAuction    | uint256                  | 207  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
 | lilNounderRewardNouns | uint256                  | 208  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
 | nounsDAORewardNouns   | uint256                  | 209  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
+| seederBlockNumber     | uint256                  | 210  | 0      | 32    | src/LilVRGDA.sol:LilVRGDA |
