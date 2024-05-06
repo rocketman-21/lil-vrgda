@@ -185,7 +185,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         usedBlockNumbers[expectedBlockNumber] = true;
 
         // Validate the purchase request against the VRGDA rules.
-        uint256 price = getCurrentVRGDAPrice();
+        uint256 price = getVRGDAPriceForSupply(
+            _nextNounIdForCaller - nounsSoldAtAuction - lilNounderRewardNouns - nounsDAORewardNouns
+        );
         require(msg.value >= price, "Insufficient funds");
 
         // Call settleAuction on the nouns contract.
@@ -307,17 +309,25 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     }
 
     /**
+     * @notice Calculates the current price of a VRGDA token based on the time elapsed.
+     * @return The current price of the next VRGDA token.
+     */
+    function getCurrentVRGDAPrice() public view returns (uint256) {
+        return getVRGDAPriceForSupply(nextNounId - nounsSoldAtAuction - lilNounderRewardNouns - nounsDAORewardNouns);
+    }
+
+    /**
      * @notice Calculates the current price of a VRGDA token based on the time elapsed and the next noun ID.
      * @dev This function computes the absolute time since the start of the auction, adjusts it to the nearest day, and then calculates the price using the VRGDA formula.
      * @return The current price of the next VRGDA token.
      */
-    function getCurrentVRGDAPrice() public view returns (uint256) {
+    function getVRGDAPriceForSupply(uint256 numSold) internal view returns (uint256) {
         uint256 absoluteTimeSinceStart = block.timestamp - startTime; // Calculate the absolute time since the auction started.
         uint256 price = getVRGDAPrice(
             // Adjust time to the nearest day.
             toDaysWadUnsafe(absoluteTimeSinceStart - (absoluteTimeSinceStart % updateInterval)),
             // The number sold, not including the nouns sold at auction and reward Nouns.
-            nextNounId - nounsSoldAtAuction - lilNounderRewardNouns - nounsDAORewardNouns
+            numSold
         );
 
         // return max of price and reservePrice
