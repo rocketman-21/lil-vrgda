@@ -17,7 +17,7 @@
 
 pragma solidity ^0.8.22;
 
-import { ILilVRGDA } from "./interfaces/ILilVrgda.sol";
+import { ILilVRGDA } from "./interfaces/ILilVRGDA.sol";
 import { INounsSeeder } from "./interfaces/INounsSeeder.sol";
 import { INounsDescriptorMinimal } from "./interfaces/INounsDescriptorMinimal.sol";
 
