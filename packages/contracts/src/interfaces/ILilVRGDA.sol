@@ -30,6 +30,8 @@ interface ILilVRGDA {
 
     event PoolSizeUpdated(uint256 poolSize);
 
+    function expectedBlockNumber() external view returns (uint256);
+
     function buyNow(uint256 expectedBlockNumber, uint256 expectedNounId) external payable;
 
     function fetchNoun(

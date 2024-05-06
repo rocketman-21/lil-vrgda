@@ -74,6 +74,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // Nouns minted for Nouns DAO as rewards so far
     uint256 public nounsDAORewardNouns;
 
+    // The expected block number for the next noun
+    uint256 public expectedBlockNumber;
+
     ///                                            ///
     ///                   ERRORS                   ///
     ///                                            ///
@@ -189,7 +192,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         require(msg.value >= price, "Insufficient funds");
 
         // Call settleAuction on the nouns contract.
-        uint256 mintedNounId = nounsToken.mint(expectedBlockNumber);
+        uint256 mintedNounId = nounsToken.mint();
         require(mintedNounId == _nextNounIdForCaller, "Incorrect minted noun id");
 
         // Increment the next noun ID.
@@ -279,7 +282,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     {
         uint256 _nextNounIdForCaller = nextNounIdForCaller();
         // Generate the seed for the next noun.
-        seed = nounsSeeder.generateSeed(_nextNounIdForCaller, nounsDescriptor, blockNumber);
+        seed = nounsSeeder.generateSeedForBlock(_nextNounIdForCaller, nounsDescriptor, blockNumber);
 
         // Generate the SVG from seed using the descriptor.
         svg = nounsDescriptor.generateSVGImage(seed);
