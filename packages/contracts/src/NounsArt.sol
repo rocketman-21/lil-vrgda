@@ -22,6 +22,8 @@ import { SSTORE2 } from "./libs/SSTORE2.sol";
 import { IInflator } from "./interfaces/IInflator.sol";
 
 contract NounsArt is INounsArt {
+    using SSTORE2 for bytes;
+
     /// @notice Current Nouns Descriptor address
     address public override descriptor;
 
