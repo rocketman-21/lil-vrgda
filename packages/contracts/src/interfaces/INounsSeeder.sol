@@ -28,7 +28,9 @@ interface INounsSeeder {
         uint48 glasses;
     }
 
-    function generateSeed(
+    function generateSeed(uint256 nounId, INounsDescriptorMinimal descriptor) external view returns (Seed memory);
+
+    function generateSeedForBlock(
         uint256 nounId,
         INounsDescriptorMinimal descriptor,
         uint256 blockNumber

@@ -74,6 +74,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     // Nouns minted for Nouns DAO as rewards so far
     uint256 public nounsDAORewardNouns;
 
+    // The expected block number for the next noun
+    uint256 public seederBlockNumber;
+
     ///                                            ///
     ///                   ERRORS                   ///
     ///                                            ///
@@ -151,6 +154,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     /**
      * @notice Allows a user to buy a Noun immediately at the current VRGDA price if conditions are met.
      * @param expectedBlockNumber The block number to specify the traits of the token
+     * @param expectedNounId The expected noun ID to be minted
      * @dev This function is payable and requires the sent value to be at least the reserve price and the current VRGDA price.
      * It checks if the block number is valid, mints the Noun, transfers it, handles refunds, and sends funds to the DAO.
      */
@@ -184,12 +188,15 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         // make it impossible to get a token with traits of any previous token (pool is emptied when a noun is bought, prevents buying duplicates)
         usedBlockNumbers[expectedBlockNumber] = true;
 
+        // store the expected block number for use in the seeder
+        seederBlockNumber = expectedBlockNumber;
+
         // Validate the purchase request against the VRGDA rules.
         uint256 price = getCurrentVRGDAPrice();
         require(msg.value >= price, "Insufficient funds");
 
         // Call settleAuction on the nouns contract.
-        uint256 mintedNounId = nounsToken.mint(expectedBlockNumber);
+        uint256 mintedNounId = nounsToken.mint();
         require(mintedNounId == _nextNounIdForCaller, "Incorrect minted noun id");
 
         // Increment the next noun ID.
@@ -220,6 +227,14 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         reservePrice = _reservePrice;
 
         emit AuctionReservePriceUpdated(_reservePrice);
+    }
+
+    /**
+     * @notice Get the block number used to seed the next noun.
+     * @return The block number used to seed the next noun.
+     */
+    function getSeederBlockNumber() external view returns (uint256) {
+        return seederBlockNumber;
     }
 
     /**
@@ -279,7 +294,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     {
         uint256 _nextNounIdForCaller = nextNounIdForCaller();
         // Generate the seed for the next noun.
-        seed = nounsSeeder.generateSeed(_nextNounIdForCaller, nounsDescriptor, blockNumber);
+        seed = nounsSeeder.generateSeedForBlock(_nextNounIdForCaller, nounsDescriptor, blockNumber);
 
         // Generate the SVG from seed using the descriptor.
         svg = nounsDescriptor.generateSVGImage(seed);

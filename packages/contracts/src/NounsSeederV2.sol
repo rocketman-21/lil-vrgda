@@ -15,17 +15,24 @@
  * ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░ *
  *********************************/
 
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.22;
 
+import { ILilVRGDA } from "./interfaces/ILilVRGDA.sol";
 import { INounsSeeder } from "./interfaces/INounsSeeder.sol";
 import { INounsDescriptorMinimal } from "./interfaces/INounsDescriptorMinimal.sol";
 
 contract NounsSeederV2 is INounsSeeder {
+    ILilVRGDA public lilVRGDA;
+
+    constructor(address _lilVRGDA) {
+        lilVRGDA = ILilVRGDA(_lilVRGDA);
+    }
+
     /**
      * @notice Generate a pseudo-random Noun seed using the previous blockhash and noun ID, and block number.
      */
     // prettier-ignore
-    function generateSeed(uint256 nounId, INounsDescriptorMinimal descriptor, uint256 blockNumber) external view override returns (Seed memory) {
+    function generateSeedForBlock(uint256 nounId, INounsDescriptorMinimal descriptor, uint256 blockNumber) public view override returns (Seed memory) {
         uint256 pseudorandomness = uint256(keccak256(abi.encodePacked(blockhash(blockNumber), nounId)));
 
 
@@ -52,5 +59,9 @@ contract NounsSeederV2 is INounsSeeder {
                 uint48(pseudorandomness >> 192) % glassesCount
             )
         });
+    }
+
+    function generateSeed(uint256 nounId, INounsDescriptorMinimal descriptor) external view returns (Seed memory) {
+        return generateSeedForBlock(nounId, descriptor, lilVRGDA.getSeederBlockNumber());
     }
 }
