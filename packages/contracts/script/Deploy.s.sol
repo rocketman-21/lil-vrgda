@@ -47,10 +47,10 @@ contract DeployContracts is Script {
 
         seeder = deploySeeder();
 
-        initializeVRGDAProxy();
-
         // TODO remove for prod deployment
         token = deployToken();
+
+        initializeVRGDAProxy();
 
         vm.stopBroadcast();
 
@@ -94,7 +94,7 @@ contract DeployContracts is Script {
     function initializeVRGDAProxy() private {
         uint256 nextNounId = 7974 + 1;
         uint256 poolSize = 4;
-        uint256 nounsSoldAtAuction = 0;
+        uint256 nounsSoldAtAuction = 7974;
         uint256 reservePrice = 0.15 * 1e18;
 
         LilVRGDA(vrgdaProxy).initialize({
