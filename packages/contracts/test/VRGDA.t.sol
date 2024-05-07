@@ -195,4 +195,10 @@ contract VrgdaTest is Test {
         // This is a test
         LilVRGDA(vrgdaProxy).fetchNoun(1);
     }
+
+    function testNounsArtHeads() public {
+        vm.roll(2);
+        // This is a test
+        INounsArt(nounsArt).heads(0);
+    }
 }
