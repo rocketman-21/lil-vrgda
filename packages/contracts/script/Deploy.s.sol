@@ -6,14 +6,20 @@ import { Script } from "forge-std/Script.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 
 import { IProxyRegistry } from "../src/external/opensea/IProxyRegistry.sol";
-import { INounsDescriptor } from "../src/interfaces/INounsDescriptor.sol";
+import { INounsDescriptorV2 } from "../src/interfaces/INounsDescriptorV2.sol";
+import { ISVGRenderer } from "../src/interfaces/ISVGRenderer.sol";
+import { IInflator } from "../src/interfaces/IInflator.sol";
+import { INounsArt } from "../src/interfaces/INounsArt.sol";
 
-import { NounsDescriptor } from "../src/NounsDescriptor.sol";
+import { NounsDescriptorV2 } from "../src/NounsDescriptorV2.sol";
 import { INounsSeeder } from "../src/interfaces/INounsSeeder.sol";
 import { LilVRGDA } from "../src/LilVRGDA.sol";
 import { NounsSeederV2 } from "../src/NounsSeederV2.sol";
 import { ERC1967Proxy } from "../src/proxy/ERC1967Proxy.sol";
 import { NounsToken } from "../src/NounsToken.sol";
+import { SVGRenderer } from "../src/SVGRenderer.sol";
+import { NounsArt } from "../src/NounsArt.sol";
+import { Inflator } from "../src/Inflator.sol";
 
 contract DeployContracts is Script {
     using Strings for uint256;
@@ -30,6 +36,12 @@ contract DeployContracts is Script {
 
     address vrgdaProxy;
 
+    address svgRenderer;
+
+    address inflator;
+
+    address nounsArt;
+
     function run() public {
         uint256 chainID = vm.envUint("CHAIN_ID");
         uint256 key = vm.envUint("PRIVATE_KEY");
@@ -37,6 +49,12 @@ contract DeployContracts is Script {
         address deployerAddress = vm.addr(key);
 
         vm.startBroadcast(deployerAddress);
+
+        svgRenderer = deploySVGRenderer();
+
+        inflator = deployInflator();
+
+        nounsArt = deployNounsArtWithOwner(deployerAddress);
 
         // TODO remove for prod deployment
         descriptor = deployDescriptor();
@@ -55,10 +73,24 @@ contract DeployContracts is Script {
         vm.stopBroadcast();
 
         writeDeploymentDetailsToFile(chainID);
+
+        // after deployment, must setDescriptor on NounsArt to descriptor address
     }
 
     function deployDescriptor() private returns (address) {
-        return address(new NounsDescriptor());
+        return address(new NounsDescriptorV2(INounsArt(nounsArt), ISVGRenderer(svgRenderer)));
+    }
+
+    function deploySVGRenderer() private returns (address) {
+        return address(new SVGRenderer());
+    }
+
+    function deployInflator() private returns (address) {
+        return address(new Inflator());
+    }
+
+    function deployNounsArtWithOwner(address owner) private returns (address) {
+        return address(new NounsArt(owner, IInflator(inflator)));
     }
 
     function deploySeeder() private returns (address) {
@@ -72,7 +104,7 @@ contract DeployContracts is Script {
                     0x3cf6a7f06015aCad49F76044d3c63D7fE477D945, // Address of the lilnounders DAO
                     0x0BC3807Ec262cB779b38D65b38158acC3bfedE10, // Address of the nouns DAO
                     vrgdaProxy, // Address of the minter
-                    INounsDescriptor(descriptor), // Address of the descriptor
+                    INounsDescriptorV2(descriptor), // Address of the descriptor
                     INounsSeeder(seeder), // Address of the seeder
                     IProxyRegistry(0xa5409ec958C83C3f309868babACA7c86DCB077c1) // Address of the OpenSea proxy registry
                 )

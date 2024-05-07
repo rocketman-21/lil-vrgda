@@ -28,7 +28,7 @@ import { UUPS } from "./proxy/UUPS.sol";
 import { toDaysWadUnsafe } from "solmate/src/utils/SignedWadMath.sol";
 import { INounsSeeder } from "./interfaces/INounsSeeder.sol";
 import { INounsToken } from "./interfaces/INounsToken.sol";
-import { INounsDescriptor } from "./interfaces/INounsDescriptor.sol";
+import { INounsDescriptorV2 } from "./interfaces/INounsDescriptorV2.sol";
 import { ILilVRGDA } from "./interfaces/ILilVRGDA.sol";
 import { IWETH } from "./interfaces/IWETH.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -63,7 +63,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     INounsSeeder public nounsSeeder;
 
     // The Nouns Descriptor contract
-    INounsDescriptor public nounsDescriptor;
+    INounsDescriptorV2 public nounsDescriptor;
 
     // Nouns sold so far
     uint256 public nounsSoldAtAuction;
@@ -150,7 +150,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         // set contracts
         nounsToken = INounsToken(_nounsTokenAddress);
         nounsSeeder = INounsSeeder(_nounsSeederAddress);
-        nounsDescriptor = INounsDescriptor(_nounsDescriptorAddress);
+        nounsDescriptor = INounsDescriptorV2(_nounsDescriptorAddress);
     }
 
     /**
