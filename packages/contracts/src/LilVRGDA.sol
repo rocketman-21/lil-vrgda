@@ -28,7 +28,7 @@ import { UUPS } from "./proxy/UUPS.sol";
 import { toDaysWadUnsafe } from "solmate/src/utils/SignedWadMath.sol";
 import { INounsSeeder } from "./interfaces/INounsSeeder.sol";
 import { INounsToken } from "./interfaces/INounsToken.sol";
-import { INounsDescriptor } from "./interfaces/INounsDescriptor.sol";
+import { INounsDescriptorV2 } from "./interfaces/INounsDescriptorV2.sol";
 import { ILilVRGDA } from "./interfaces/ILilVRGDA.sol";
 import { IWETH } from "./interfaces/IWETH.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -57,13 +57,13 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     address public immutable wethAddress;
 
     // The Nouns ERC721 token contract
-    INounsToken public immutable nounsToken;
+    INounsToken public nounsToken;
 
     // The Nouns Seeder contract
-    INounsSeeder public immutable nounsSeeder;
+    INounsSeeder public nounsSeeder;
 
     // The Nouns Descriptor contract
-    INounsDescriptor public immutable nounsDescriptor;
+    INounsDescriptorV2 public nounsDescriptor;
 
     // Nouns sold so far
     uint256 public nounsSoldAtAuction;
@@ -95,29 +95,16 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @param _priceDecayPercent The percent price decays per unit of time with no sales, scaled by 1e18.
      * @param _perTimeUnit The number of tokens to target selling in 1 full unit of time, scaled by 1e18.
      * @param _wethAddress The address of the WETH contract
-     * @param _nounsTokenAddress The address of the token contract
-     * @param _nounsSeederAddress The address of the seeder contract
-     * @param _nounsDescriptorAddress The address of the descriptor contract
      */
     constructor(
         int256 _targetPrice,
         int256 _priceDecayPercent,
         int256 _perTimeUnit,
-        address _wethAddress,
-        address _nounsTokenAddress,
-        address _nounsSeederAddress,
-        address _nounsDescriptorAddress
+        address _wethAddress
     ) LinearVRGDA(_targetPrice, _priceDecayPercent, _perTimeUnit) {
         wethAddress = _wethAddress;
 
         if (_wethAddress == address(0)) revert ADDRESS_ZERO();
-        if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
-        if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
-        if (_nounsDescriptorAddress == address(0)) revert ADDRESS_ZERO();
-
-        nounsToken = INounsToken(_nounsTokenAddress);
-        nounsSeeder = INounsSeeder(_nounsSeederAddress);
-        nounsDescriptor = INounsDescriptor(_nounsDescriptorAddress);
     }
 
     /**
@@ -127,13 +114,23 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @param _nextNounId The next noun ID to be minted
      * @param _poolSize The size of the pool of tokens you can choose to buy from
      * @param _nounsSoldAtAuction The number of nouns sold so far.
+     * @param _nounsTokenAddress The address of the token contract
+     * @param _nounsSeederAddress The address of the seeder contract
+     * @param _nounsDescriptorAddress The address of the descriptor contract
      */
     function initialize(
         uint256 _reservePrice,
         uint256 _nextNounId,
         uint256 _poolSize,
-        uint256 _nounsSoldAtAuction
+        uint256 _nounsSoldAtAuction,
+        address _nounsTokenAddress,
+        address _nounsSeederAddress,
+        address _nounsDescriptorAddress
     ) external initializer {
+        if (_nounsTokenAddress == address(0)) revert ADDRESS_ZERO();
+        if (_nounsSeederAddress == address(0)) revert ADDRESS_ZERO();
+        if (_nounsDescriptorAddress == address(0)) revert ADDRESS_ZERO();
+
         // Setup ownable
         __Ownable_init(); // sets owner to msg.sender
         // Setup reentrancy guard
@@ -149,6 +146,11 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         reservePrice = _reservePrice;
         poolSize = _poolSize;
         nounsSoldAtAuction = _nounsSoldAtAuction;
+
+        // set contracts
+        nounsToken = INounsToken(_nounsTokenAddress);
+        nounsSeeder = INounsSeeder(_nounsSeederAddress);
+        nounsDescriptor = INounsDescriptorV2(_nounsDescriptorAddress);
     }
 
     /**

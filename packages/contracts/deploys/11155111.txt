@@ -1,0 +1,5 @@
+Descriptor: 0x852f20f0140a4b5aa29c70bf39c9a85edc2b454e
+VRGDA Impl: 0x0ee3d9f6acad1fed0e8ad9e96df9f7ae30bf7a58
+VRGDA Proxy: 0xc27d735c529c36fc26cba27d1540429d3b8cba87
+Seeder: 0xfc87e08526da5fcce97c2b3413871cb0f72ef976
+Token: 0xb997d521e567a5eb363a6bd7358cd6c6da342ca4
