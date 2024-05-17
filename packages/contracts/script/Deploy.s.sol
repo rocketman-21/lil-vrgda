@@ -26,21 +26,15 @@ contract DeployContracts is Script {
 
     address weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    address descriptor;
+    address descriptor = 0xE5e3Debf38AdceC0316f89eFe88a27A7d99a4477;
 
     address seeder;
 
-    address token;
+    address token = 0x4C4674bb72a096855496a7204962297bd7e12b85;
 
     address vrgdaImpl;
 
     address vrgdaProxy;
-
-    address svgRenderer;
-
-    address inflator;
-
-    address nounsArt;
 
     function run() public {
         uint256 chainID = vm.envUint("CHAIN_ID");
@@ -50,23 +44,11 @@ contract DeployContracts is Script {
 
         vm.startBroadcast(deployerAddress);
 
-        svgRenderer = deploySVGRenderer();
-
-        inflator = deployInflator();
-
-        nounsArt = deployNounsArtWithOwner(deployerAddress);
-
-        // TODO remove for prod deployment
-        descriptor = deployDescriptor();
-
         vrgdaImpl = deployVRGDAImpl();
 
         vrgdaProxy = deployVRGDAProxy();
 
         seeder = deploySeeder();
-
-        // TODO remove for prod deployment
-        token = deployToken();
 
         initializeVRGDAProxy();
 
@@ -75,22 +57,6 @@ contract DeployContracts is Script {
         writeDeploymentDetailsToFile(chainID);
 
         // after deployment, must setDescriptor on NounsArt to descriptor address
-    }
-
-    function deployDescriptor() private returns (address) {
-        return address(new NounsDescriptorV2(INounsArt(nounsArt), ISVGRenderer(svgRenderer)));
-    }
-
-    function deploySVGRenderer() private returns (address) {
-        return address(new SVGRenderer());
-    }
-
-    function deployInflator() private returns (address) {
-        return address(new Inflator());
-    }
-
-    function deployNounsArtWithOwner(address owner) private returns (address) {
-        return address(new NounsArt(owner, IInflator(inflator)));
     }
 
     function deploySeeder() private returns (address) {
