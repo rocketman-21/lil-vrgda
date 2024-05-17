@@ -23,6 +23,8 @@ interface ILilVRGDA {
     // keep this the same for backwards compatibility
     event AuctionSettled(uint256 indexed nounId, address winner, uint256 amount);
 
+    event SeederUpdated(INounsSeeder seeder);
+
     // keep this the same for backwards compatibility
     event AuctionReservePriceUpdated(uint256 reservePrice);
 
