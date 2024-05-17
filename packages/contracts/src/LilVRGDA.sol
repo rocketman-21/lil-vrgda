@@ -245,6 +245,17 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
     }
 
     /**
+     * @notice Set the nouns descriptor contract.
+     * @dev Only callable by the owner.
+     * @param _nounsDescriptor The address of the new nouns descriptor contract.
+     */
+    function setNounsDescriptor(INounsDescriptorV2 _nounsDescriptor) external onlyOwner {
+        nounsDescriptor = _nounsDescriptor;
+
+        emit DescriptorUpdated(_nounsDescriptor);
+    }
+
+    /**
      * @notice Get the block number used to seed the next noun.
      * @return The block number used to seed the next noun.
      */

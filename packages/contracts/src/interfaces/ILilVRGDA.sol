@@ -18,12 +18,15 @@
 pragma solidity ^0.8.22;
 
 import { INounsSeeder } from "./INounsSeeder.sol";
+import { INounsDescriptorV2 } from "./INounsDescriptorV2.sol";
 
 interface ILilVRGDA {
     // keep this the same for backwards compatibility
     event AuctionSettled(uint256 indexed nounId, address winner, uint256 amount);
 
     event SeederUpdated(INounsSeeder seeder);
+
+    event DescriptorUpdated(INounsDescriptorV2 descriptor);
 
     // keep this the same for backwards compatibility
     event AuctionReservePriceUpdated(uint256 reservePrice);
