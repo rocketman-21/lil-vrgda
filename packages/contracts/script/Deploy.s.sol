@@ -26,11 +26,11 @@ contract DeployContracts is Script {
 
     address weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    address descriptor = 0xE5e3Debf38AdceC0316f89eFe88a27A7d99a4477;
+    address descriptor = 0x852f20f0140A4B5Aa29C70bF39C9a85edc2B454E;
 
     address seeder;
 
-    address token = 0x4C4674bb72a096855496a7204962297bd7e12b85;
+    address token = 0x6e48e79f718776CF412a87e047722dBFda5B465D;
 
     address vrgdaImpl;
 
@@ -39,18 +39,28 @@ contract DeployContracts is Script {
     function run() public {
         uint256 chainID = vm.envUint("CHAIN_ID");
         uint256 key = vm.envUint("PRIVATE_KEY");
+        uint256 nextNounId = vm.envUint("NEXT_NOUN_ID");
+        uint256 nounsSoldAtAuction = vm.envUint("NOUNS_SOLD_AT_AUCTION");
+
+        //todo UPDATE
+        uint256 poolSize = 4;
+        uint256 reservePrice = 0.01 * 1e18; // 0.01 ETH
+
+        int256 targetPrice = 0.15 * 1e18; // 0.15 ETH
+        int256 priceDecayPercent = 1e18 / 5; // 20% scaled by 1e18
+        int256 perTimeUnit = 1e18; // 1 NFT sold per day
 
         address deployerAddress = vm.addr(key);
 
         vm.startBroadcast(deployerAddress);
 
-        vrgdaImpl = deployVRGDAImpl();
+        vrgdaImpl = deployVRGDAImpl(targetPrice, priceDecayPercent, perTimeUnit);
 
         vrgdaProxy = deployVRGDAProxy();
 
         seeder = deploySeeder();
 
-        initializeVRGDAProxy();
+        initializeVRGDAProxy(nextNounId, poolSize, nounsSoldAtAuction, reservePrice);
 
         vm.stopBroadcast();
 
@@ -77,11 +87,11 @@ contract DeployContracts is Script {
             );
     }
 
-    function deployVRGDAImpl() private returns (address) {
-        int256 targetPrice = 0.15 * 1e18; // 0.15 ETH
-        int256 priceDecayPercent = 1e18 / 5; // 20% scaled by 1e18
-        int256 perTimeUnit = 1e18; // 1 NFT sold per day
-
+    function deployVRGDAImpl(
+        int256 targetPrice,
+        int256 priceDecayPercent,
+        int256 perTimeUnit
+    ) private returns (address) {
         return address(new LilVRGDA(targetPrice, priceDecayPercent, perTimeUnit, weth));
     }
 
@@ -89,12 +99,12 @@ contract DeployContracts is Script {
         return address(new ERC1967Proxy(vrgdaImpl, ""));
     }
 
-    function initializeVRGDAProxy() private {
-        uint256 nextNounId = 7974 + 1;
-        uint256 poolSize = 4;
-        uint256 nounsSoldAtAuction = 7974;
-        uint256 reservePrice = 0.15 * 1e18;
-
+    function initializeVRGDAProxy(
+        uint256 nextNounId,
+        uint256 poolSize,
+        uint256 nounsSoldAtAuction,
+        uint256 reservePrice
+    ) private {
         LilVRGDA(vrgdaProxy).initialize({
             _nextNounId: nextNounId,
             _poolSize: poolSize,
