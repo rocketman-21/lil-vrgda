@@ -309,6 +309,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
      * @return svg The SVG image of the next noun.
      * @return price The price of the next noun according to VRGDA rules.
      * @return hash The blockhash associated with the next noun.
+     * @return blockNum The block number associated with the next noun.
      */
     function fetchNoun(
         uint256 blockNumber
@@ -316,7 +317,14 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         public
         view
         override
-        returns (uint256 nounId, INounsSeeder.Seed memory seed, string memory svg, uint256 price, bytes32 hash)
+        returns (
+            uint256 nounId,
+            INounsSeeder.Seed memory seed,
+            string memory svg,
+            uint256 price,
+            bytes32 hash,
+            uint256 blockNum
+        )
     {
         uint256 _nextNounIdForCaller = nextNounIdForCaller();
         // Generate the seed for the next noun.
@@ -331,7 +339,7 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         // Fetch the blockhash associated with this noun.
         hash = blockhash(blockNumber);
 
-        return (_nextNounIdForCaller, seed, svg, price, hash);
+        return (_nextNounIdForCaller, seed, svg, price, hash, blockNumber);
     }
 
     /**
@@ -342,7 +350,14 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
         external
         view
         override
-        returns (uint256 nounId, INounsSeeder.Seed memory seed, string memory svg, uint256 price, bytes32 hash)
+        returns (
+            uint256 nounId,
+            INounsSeeder.Seed memory seed,
+            string memory svg,
+            uint256 price,
+            bytes32 hash,
+            uint256 blockNumber
+        )
     {
         return fetchNoun(block.number - 1);
     }

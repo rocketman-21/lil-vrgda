@@ -44,12 +44,26 @@ interface ILilVRGDA {
     )
         external
         view
-        returns (uint nounId, INounsSeeder.Seed memory seed, string memory svg, uint256 price, bytes32 hash);
+        returns (
+            uint nounId,
+            INounsSeeder.Seed memory seed,
+            string memory svg,
+            uint256 price,
+            bytes32 blockHash,
+            uint256 block
+        );
 
     function fetchNextNoun()
         external
         view
-        returns (uint nounId, INounsSeeder.Seed memory seed, string memory svg, uint256 price, bytes32 hash);
+        returns (
+            uint nounId,
+            INounsSeeder.Seed memory seed,
+            string memory svg,
+            uint256 price,
+            bytes32 blockHash,
+            uint256 blockNumber
+        );
 
     function pause() external;
 
