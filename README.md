@@ -21,14 +21,18 @@ The contract includes security features such as reentrancy protection and pausab
 
 The NounsSeederV2 contract introduces a new method for generating pseudo-random seeds, incorporating the use of the ILilVRGDA interface to fetch the block number for seed generation. This enhances flexibility and control over the seed generation process, and allows us to accurately predict which Lil Noun will be purchased given the block number in the VRGDA. 
 
+Here's the fixed formatting for the section:
+
 ### Key Features and Changes
 
-	1.	ILilVRGDA Integration:
-	•	Introduced ILilVRGDA interface to fetch the block number.
-	•	Added a constructor to initialize ILilVRGDA.
-	2.	Seed Generation:
-	•	Added generateSeedForBlock function to generate seeds using a specified block number.
-	•	generateSeed now calls generateSeedForBlock using the block number provided by ILilVRGDA.
-	3.	Improved Flexibility:
-	•	Allows specifying the block number for seed generation, providing better control and flexibility.
-	•	Utilizes blockhash(blockNumber) for generating pseudo-randomness, similar to the original method but with an adjustable block number.
+1. ILilVRGDA Integration:
+   - Introduced ILilVRGDA interface to fetch the block number.
+   - Added a constructor to initialize ILilVRGDA.
+
+2. Seed Generation:
+   - Added generateSeedForBlock function to generate seeds using a specified block number.
+   - generateSeed now calls generateSeedForBlock using the block number provided by ILilVRGDA.
+
+3. Improved Flexibility:
+   - Allows specifying the block number for seed generation, providing better control and flexibility.
+   - Utilizes blockhash(blockNumber) for generating pseudo-randomness, similar to the original method but with an adjustable block number.
