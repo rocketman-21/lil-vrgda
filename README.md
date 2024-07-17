@@ -8,10 +8,10 @@ The LilVRGDA contract implements a Variable Rate Gradual Dutch Auction (VRGDA) m
 
 ### Key Functionality
 
-Token Minting: Users can mint Lil Nouns by calling buyNow(), paying the current VRGDA price.
-Dynamic Pricing: The contract calculates token prices using VRGDA logic, updating at set intervals.
-Nouns Integration: Interacts with Nouns Token, Seeder, and Descriptor contracts for minting and metadata generation.
-Admin Controls: Allows owner to adjust parameters like reserve price, update interval, and pool size.
+- Token Minting: Users can mint Lil Nouns by calling buyNow(), paying the current VRGDA price.
+- Dynamic Pricing: The contract calculates token prices using VRGDA logic, updating at set intervals.
+- Nouns Integration: Interacts with Nouns Token, Seeder, and Descriptor contracts for minting and metadata generation.
+- Admin Controls: Allows owner to adjust parameters like reserve price, update interval, and pool size.
 
 The contract includes security features such as reentrancy protection and pausability, and uses the UUPS proxy pattern for upgradeability.
 
