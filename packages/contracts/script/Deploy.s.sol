@@ -24,13 +24,16 @@ import { Inflator } from "../src/Inflator.sol";
 contract DeployContracts is Script {
     using Strings for uint256;
 
+    //TODO UPDATE
     address weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
 
-    address descriptor = 0x852f20f0140A4B5Aa29C70bF39C9a85edc2B454E;
+    //TODO UPDATE
+    address descriptor = 0xb2a47999b3117c7dD628920ED8e77eBDfB948B68;
 
     address seeder;
 
-    address token = 0x6e48e79f718776CF412a87e047722dBFda5B465D;
+    //TODO UPDATE
+    address token = 0x4b10701Bfd7BFEdc47d50562b76b436fbB5BdB3B;
 
     address vrgdaImpl;
 
@@ -39,13 +42,15 @@ contract DeployContracts is Script {
     function run() public {
         uint256 chainID = vm.envUint("CHAIN_ID");
         uint256 key = vm.envUint("PRIVATE_KEY");
-        uint256 nextNounId = vm.envUint("NEXT_NOUN_ID");
-        uint256 nounsSoldAtAuction = vm.envUint("NOUNS_SOLD_AT_AUCTION");
+        uint256 nextNounId = vm.envUint("NEXT_NOUN_ID"); //TODO
+        uint256 nounsSoldAtAuction = vm.envUint("NOUNS_SOLD_AT_AUCTION"); //TODO
 
-        //todo UPDATE
+        //TODO UPDATE
         uint256 poolSize = 4;
-        uint256 reservePrice = 0.01 * 1e18; // 0.01 ETH
+        //TODO UPDATE
+        uint256 reservePrice = 0.03 * 1e18; // 0.03 ETH
 
+        //TODO UPDATE
         int256 targetPrice = 0.15 * 1e18; // 0.15 ETH
         int256 priceDecayPercent = 1e18 / 5; // 20% scaled by 1e18
         int256 perTimeUnit = 1e18; // 1 NFT sold per day
@@ -71,20 +76,6 @@ contract DeployContracts is Script {
 
     function deploySeeder() private returns (address) {
         return address(new NounsSeederV2(vrgdaProxy));
-    }
-
-    function deployToken() private returns (address) {
-        return
-            address(
-                new NounsToken(
-                    0x3cf6a7f06015aCad49F76044d3c63D7fE477D945, // Address of the lilnounders DAO
-                    0x0BC3807Ec262cB779b38D65b38158acC3bfedE10, // Address of the nouns DAO
-                    vrgdaProxy, // Address of the minter
-                    INounsDescriptorV2(descriptor), // Address of the descriptor
-                    INounsSeeder(seeder), // Address of the seeder
-                    IProxyRegistry(0xa5409ec958C83C3f309868babACA7c86DCB077c1) // Address of the OpenSea proxy registry
-                )
-            );
     }
 
     function deployVRGDAImpl(

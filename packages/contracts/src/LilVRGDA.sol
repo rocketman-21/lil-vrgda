@@ -174,9 +174,6 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
 
         uint256 _nextNounIdForCaller = nextNounId;
 
-        // Enforce minting expected NounId
-        require(expectedNounId == _nextNounIdForCaller, "Invalid or expired nounId");
-
         // If going to mint Nouns that are founder rewards, increment the counts
         if (_nextNounIdForCaller <= 175300 && _nextNounIdForCaller % 10 == 0) {
             _nextNounIdForCaller++;
@@ -186,6 +183,9 @@ contract LilVRGDA is ILilVRGDA, LinearVRGDA, PausableUpgradeable, ReentrancyGuar
             _nextNounIdForCaller++;
             nounsDAORewardNouns++;
         }
+
+        // Enforce minting expected NounId
+        require(expectedNounId == _nextNounIdForCaller, "Invalid or expired nounId");
 
         // make it impossible to get a token with traits of any previous token (pool is emptied when a noun is bought, prevents buying duplicates)
         usedBlockNumbers[expectedBlockNumber] = true;
