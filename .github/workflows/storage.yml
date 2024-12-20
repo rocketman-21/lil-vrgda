@@ -1,0 +1,30 @@
+on:
+  workflow_call:
+    inputs:
+      package_folder:
+        required: true
+        type: string
+
+jobs:
+  forge_storage_test:
+    strategy:
+      fail-fast: true
+
+    name: Forge storage test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install node deps and foundry
+        uses: ./.github/actions/setup_deps
+
+      - name: Load foundry cache
+        uses: ./.github/actions/cache_foundry_build
+        with:
+          package_folder: ${{ inputs.package_folder }}
+
+      - name: Storage inspection test
+        run: |
+          cd ${{ inputs.package_folder}} && pnpm storage-inspect:check

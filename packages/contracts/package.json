@@ -1,0 +1,50 @@
+{
+  "name": "@lil-vrgda/contracts",
+  "version": "0.0.1",
+  "repository": "https://github.com/rocketman-21/lil-vrgda.git",
+  "main": "./dist/index.js",
+  "types": "./dist/package/index.d.ts",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build:sizes": "forge build --sizes",
+    "dev": "FOUNDRY_PROFILE=dev forge test --watch -vvv",
+    "test": "forge test -vvv",
+    "test:ci": "FOUNDRY_PROFILE=ci forge test -vvv",
+    "slither:check": "slither src --checklist --filter-paths '@openzeppelin|ERC721' --config-file='../../slither.config.json'",
+    "build:contracts": "forge build",
+    "prettier": "prettier --write 'src/**/*.sol' 'test/**/*.sol'",
+    "lint": "prettier --check 'src/**/*.sol' 'test/**/*.sol'",
+    "copy-abis": "tsx script/bundle-abis.ts",
+    "build": "pnpm run wagmi && pnpm run copy-abis && tsup",
+    "wagmi": "FOUNDRY_PROFILE=dev forge build && wagmi generate",
+    "write-gas-report": "forge test --gas-report > ../../gas-reports/contracts.ansi",
+    "clean": "forge cache clean && if [ -d out ]; then forge clean; fi",
+    "storage-inspect:check": "../../script/storage-check.sh check ERC1967Proxy ERC1967Upgrade UUPS LilVRGDA",
+    "storage-inspect:generate": "../../script/storage-check.sh generate ERC1967Proxy ERC1967Upgrade UUPS LilVRGDA"
+  },
+  "files": [
+    "dist/",
+    "src/",
+    "package/",
+    "abis/"
+  ],
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "prettier": "2.8.8",
+    "prettier-plugin-solidity": "1.2.0",
+    "solhint": "3.4.1",
+    "tsup": "^8.0.1",
+    "tsx": "^4.6.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.1.0",
+    "@openzeppelin/contracts-upgradeable": "^4.1.0",
+    "base64-sol": "^1.1.0",
+    "ds-test": "https://github.com/dapphub/ds-test#cd98eff28324bfac652e63a239a60632a761790b",
+    "forge-std": "https://github.com/foundry-rs/forge-std#87a2a0afc5fafd6297538a45a52ac19e71a84562",
+    "solmate": "^6.1.0"
+  }
+}

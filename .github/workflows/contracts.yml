@@ -1,0 +1,10 @@
+name: "Contracts"
+
+on:
+  push:
+
+jobs:
+  contracts:
+    name: VRGDA Contracts
+    uses: ./.github/workflows/vrgda_contracts.yml
+    secrets: inherit

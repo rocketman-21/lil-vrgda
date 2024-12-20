@@ -1,0 +1,48 @@
+{
+  "name": "lil-vrgda",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "turbo run format",
+    "clean": "turbo run clean",
+    "update-version": "changeset version && turbo run update-contract-version",
+    "release": "turbo run build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@types/node": "^20.10.4",
+    "prettier": "2.8.8",
+    "prettier-plugin-solidity": "1.2.0",
+    "solhint": "3.4.1",
+    "turbo": "latest",
+    "typescript": "^5.3.3"
+  },
+  "packageManager": "pnpm@8.9.2",
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+      "**/@openzeppelin/**",
+      "**/ds-test",
+      "**/forge-std",
+      "**/solmate"
+    ]
+  },
+  "bugs": {
+    "url": "https://github.com/rocketman-21/lil-vrgda/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rocketman-21/lil-vrgda.git"
+  },
+  "version": "0.0.1",
+  "dependencies": {
+    "@wagmi/cli": "^2.1.0",
+    "glob": "^10.3.10",
+    "pathe": "^1.1.2"
+  }
+}
